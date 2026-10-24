@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Examinations — University Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Examinations Schedule</h2>
+        <p class="text-muted mb-0">Schedule and manage examinations (Midterms, Finals, Quizzes) across course sections.</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExamModal">
+        <i class="bi bi-pencil-square me-1"></i> Schedule Exam
+    </button>
+</div>
+
+<!-- Exams Table -->
+<div class="card card-main">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;">Exam ID</th>
+                        <th>Course & Section</th>
+                        <th>Exam Type</th>
+                        <th>Exam Date</th>
+                        <th>Instructor</th>
+                        <th class="text-center">Results Graded</th>
+                        <th class="text-end" style="width: 140px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in exams %}
+                    <tr>
+                        <td class="fw-bold text-muted">#{{ e.exam_id }}</td>
+                        <td>
+                            <div class="fw-semibold text-dark">{{ e.course_id }} &mdash; {{ e.course_name }}</div>
+                            <span class="small text-muted">Section #{{ e.sec_id }} ({{ e.semester }} {{ e.year }})</span>
+                        </td>
+                        <td>
+                            {% if e.exam_type == 'Final' %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Final</span>
+                            {% elif e.exam_type == 'Midterm' %}
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">Midterm</span>
+                            {% else %}
+                                <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1">{{ e.exam_type }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <i class="bi bi-calendar-event text-secondary me-1"></i> {{ e.exam_date }}
+                        </td>
+                        <td class="small">{{ e.instructor_name }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('list_results', exam_id=e.exam_id) }}" class="badge bg-success-subtle text-success border border-success-subtle text-decoration-none">
+                                {{ e.evaluated_students }} of {{ e.enrolled_candidates }} evaluated
+                            </a>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-secondary me-1" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editExamModal{{ e.exam_id }}" 
+                                    title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteExamModal{{ e.exam_id }}" 
+                                    title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Edit Exam Modal -->
+                    <div class="modal fade" id="editExamModal{{ e.exam_id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="{{ url_for('edit_exam', exam_id=e.exam_id) }}" method="POST">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title fw-bold">Edit Examination #{{ e.exam_id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Target Section <span class="text-danger">*</span></label>
+                                            <select name="sec_id" class="form-select" required>
+                                                {% for sec in sections %}
+                                                <option value="{{ sec.sec_id }}" {% if e.sec_id == sec.sec_id %}selected{% endif %}>
+                                                    Section #{{ sec.sec_id }}: {{ sec.course_id }} &mdash; {{ sec.course_name }} ({{ sec.semester }} {{ sec.year }})
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Exam Type <span class="text-danger">*</span></label>
+                                            <select name="exam_type" class="form-select" required>
+                                                {% for t in ['Midterm', 'Final', 'Quiz', 'Assignment', 'Practical'] %}
+                                                <option value="{{ t }}" {% if e.exam_type == t %}selected{% endif %}>{{ t }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Exam Date <span class="text-danger">*</span></label>
+                                            <input type="date" name="exam_date" class="form-control" value="{{ e.exam_date }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delete Exam Modal -->
+                    <div class="modal fade" id="deleteExamModal{{ e.exam_id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="{{ url_for('delete_exam', exam_id=e.exam_id) }}" method="POST">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Examination</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to delete <strong>{{ e.exam_type }} for {{ e.course_name }} (ID: {{ e.exam_id }})</strong>?</p>
+                                        <div class="alert alert-danger small mb-0">
+                                            <i class="bi bi-shield-exclamation me-1"></i>
+                                            <strong>Cascade Notice:</strong> Deleting this exam will automatically cascade and delete all student marks entered for this exam.
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">No examinations scheduled yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Exam Modal -->
+<div class="modal fade" id="addExamModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('add_exam') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Schedule Examination</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select Course Section <span class="text-danger">*</span></label>
+                        <select name="sec_id" class="form-select" required>
+                            <option value="">Select Section...</option>
+                            {% for sec in sections %}
+                            <option value="{{ sec.sec_id }}">
+                                Section #{{ sec.sec_id }}: {{ sec.course_id }} &mdash; {{ sec.course_name }} ({{ sec.semester }} {{ sec.year }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Exam Type <span class="text-danger">*</span></label>
+                        <select name="exam_type" class="form-select" required>
+                            <option value="Midterm">Midterm</option>
+                            <option value="Final">Final</option>
+                            <option value="Quiz">Quiz</option>
+                            <option value="Assignment">Assignment</option>
+                            <option value="Practical">Practical</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Exam Date <span class="text-danger">*</span></label>
+                        <input type="date" name="exam_date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Schedule Exam</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

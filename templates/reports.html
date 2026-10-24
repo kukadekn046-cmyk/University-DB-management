@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Interactive SQL Reports — University Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">DBMS Mini Project &bull; Viva Query Demonstration</h2>
+        <p class="text-muted mb-0">Live interactive execution of relational algebra queries, joins, subqueries, and aggregate reports.</p>
+    </div>
+    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6">
+        <i class="bi bi-check-all me-1"></i> 11 Required Viva Queries Active
+    </span>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Query Selection Menu -->
+    <div class="col-lg-4">
+        <div class="card card-main sticky-top" style="top: 85px;">
+            <div class="card-header card-header-custom">
+                <span class="fw-bold"><i class="bi bi-list-check text-primary me-2"></i> Select Analytical Query</span>
+            </div>
+            <div class="list-group list-group-flush" style="max-height: 75vh; overflow-y: auto;">
+                {% for q in catalog %}
+                <a href="{{ url_for('reports', qid=q.id) }}" 
+                   class="list-group-item list-group-item-action p-3 {% if q.id == selected.id %}active bg-primary border-primary text-white{% endif %}">
+                    <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                        <h6 class="mb-0 fw-bold">{{ q.title }}</h6>
+                    </div>
+                    <small class="{% if q.id == selected.id %}text-white-50{% else %}text-muted{% endif %} d-block mb-1">
+                        {{ q.concept }}
+                    </small>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Query Details, SQL Code, and Live Results Table -->
+    <div class="col-lg-8">
+        <!-- Query Header & Concept Card -->
+        <div class="card card-main mb-4">
+            <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ selected.title }}</h5>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1">
+                        DBMS Concept: {{ selected.concept }}
+                    </span>
+                </div>
+                <a href="{{ url_for('reports', qid=selected.id) }}" class="btn btn-sm btn-outline-secondary" title="Re-run Query">
+                    <i class="bi bi-arrow-repeat me-1"></i> Refresh
+                </a>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">{{ selected.description }}</p>
+                <label class="form-label fw-semibold small text-uppercase text-muted">SQL Query Executed:</label>
+                <pre class="sql-code mb-0"><code>{{ selected.sql }}</code></pre>
+            </div>
+        </div>
+
+        <!-- Live Results Table Card -->
+        <div class="card card-main">
+            <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="bi bi-table text-success me-2"></i> Query Execution Output</span>
+                <span class="badge bg-light text-dark border">{{ data|length }} rows returned</span>
+            </div>
+            <div class="card-body p-0">
+                {% if error %}
+                <div class="alert alert-danger m-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Query Error:</strong> {{ error }}
+                </div>
+                {% elif data %}
+                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                {% for col in columns %}
+                                <th>{{ col }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                            <tr>
+                                {% for col in columns %}
+                                <td>
+                                    {% if row[col] is none %}
+                                        <span class="text-muted fst-italic">NULL</span>
+                                    {% else %}
+                                        {{ row[col] }}
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                    No rows returned by this query.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
