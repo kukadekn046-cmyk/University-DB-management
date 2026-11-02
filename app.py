@@ -1072,31 +1072,6 @@ ORDER BY avg_salary DESC;"""
     }
 ]
 
-@app.route('/reports')
-def reports():
-    query_id = request.args.get('qid', type=int, default=1)
-    selected_query = next((q for q in QUERIES_CATALOG if q['id'] == query_id), QUERIES_CATALOG[0])
-
-    data = []
-    columns = []
-    error = None
-
-    try:
-        data = execute_query(selected_query['sql'], fetch='all')
-        if data:
-            columns = list(data[0].keys())
-    except Exception as e:
-        error = str(e)
-
-    return render_template(
-        'reports.html',
-        catalog=QUERIES_CATALOG,
-        selected=selected_query,
-        data=data,
-        columns=columns,
-        error=error
-    )
-
 # =============================================================================
 # APPLICATION STARTUP
 # =============================================================================

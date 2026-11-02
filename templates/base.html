@@ -17,19 +17,32 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('dashboard') }}">
-                <i class="bi bi-mortarboard-fill text-primary me-2 fs-4"></i>
-                <span>UniDBMS <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7 ms-1">v1.0</span></span>
+    <!-- University Header -->
+    <header class="university-header">
+        <div class="container-fluid university-header-inner px-4 px-xl-5">
+            <a class="university-brand" href="{{ url_for('dashboard') }}">
+                <div class="brand-mark"><i class="bi bi-mortarboard-fill"></i></div>
+                <div>
+                    <span class="brand-name">University Management Portal</span>
+                    <span class="brand-subtitle">Academic Administration System</span>
+                </div>
             </a>
+            <div class="header-meta d-none d-md-flex">
+                <span class="header-meta-item"><i class="bi bi-calendar3"></i> Academic Session</span>
+                <span class="header-meta-item"><i class="bi bi-shield-check"></i> Secure Portal</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Primary Navigation -->
+    <nav class="navbar navbar-expand-xl primary-navigation sticky-top">
+        <div class="container-fluid px-4 px-xl-5">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarMain">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
                             <i class="bi bi-speedometer2 me-1"></i> Dashboard
@@ -76,20 +89,12 @@
                         </a>
                     </li>
                 </ul>
-
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="btn btn-outline-warning btn-sm d-flex align-items-center {% if request.endpoint == 'reports' %}active{% endif %}" href="{{ url_for('reports') }}">
-                            <i class="bi bi-database-check me-1 fs-6"></i> Viva SQL Reports
-                        </a>
-                    </li>
-                </ul>
             </div>
         </div>
     </nav>
 
     <!-- Main Content Container -->
-    <main class="container-fluid px-4 py-4 flex-grow-1">
+    <main class="container-fluid px-4 px-xl-5 py-4 flex-grow-1">
         <!-- Flash Notification Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -120,7 +125,7 @@
 
     <!-- Footer -->
     <footer>
-        <div class="container-fluid px-4 text-center">
+        <div class="container-fluid px-4 px-xl-5 text-center">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
                 <div>
                     <span class="fw-semibold text-dark">University Management System</span> — DBMS Mini Project (Third Year B.Tech)

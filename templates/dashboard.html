@@ -8,10 +8,8 @@
         <h2 class="fw-bold mb-1">University Dashboard</h2>
         <p class="text-muted mb-0">Overview of relational database metrics, academic entities, and active enrollments.</p>
     </div>
-    <div>
-        <a href="{{ url_for('reports') }}" class="btn btn-primary shadow-sm">
-            <i class="bi bi-cpu me-1"></i> Interactive SQL Reports
-        </a>
+    <div class="dashboard-date d-none d-md-block">
+        <i class="bi bi-calendar-check me-2"></i>{{ stats.departments }} departments
     </div>
 </div>
 

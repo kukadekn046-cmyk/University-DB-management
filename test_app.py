@@ -106,11 +106,5 @@ class UniversityManagementSystemTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'94.50', response.data)
 
-    def test_10_all_11_viva_reports(self):
-        for qid in range(1, 12):
-            response = self.client.get(f'/reports?qid={qid}')
-            self.assertEqual(response.status_code, 200, f"Query #{qid} failed with status {response.status_code}")
-            self.assertNotIn(b'Query Error', response.data)
-
 if __name__ == '__main__':
     unittest.main()
